@@ -1,53 +1,81 @@
-# Crack Propagation Prediction using Physics-Informed VAE
+# Crack Propagation Model
 
-This project implements a Variational Autoencoder (VAE) to predict the crack propagation path in a glass plate under tensile loading, incorporating physics-informed loss constraints.
+A **physics-informed Variational Autoencoder (VAE)** that predicts crack growth paths in a glass plate under tensile loading. Combines reconstruction loss, KL divergence, and custom physics constraints so predicted cracks grow realistically from an initial notch.
 
-## Project Overview
+## Overview
 
-The goal is to predict the final crack configuration of a 100mm x 40mm glass plate given an initial notch length and location. The model uses a combination of structural similarity (SSIM), KL Divergence, and custom physics losses to ensure realistic crack growth.
+Given an initial notch configuration on a **100 mm × 40 mm** glass plate, the model predicts the final crack pattern. Training uses paired simulation images (initial → final state) with losses designed to respect physical propagation behavior.
 
-### Key Features
-- **Variational Autoencoder (VAE)**: Architecture designed for image-to-image prediction of crack paths.
-- **Physics-Informed Loss**:
-  - **Growth Constraint**: Ensures the crack only grows or remains constant (no shrinkage).
-  - **Direction Constraint**: Penalizes deviations from the expected propagation path using skeletonization and crack tip detection.
-- **Image Preprocessing**: Automated white-border removal and cropping for simulation data.
+## Features
 
-## Installation
+- **Variational Autoencoder** — Image-to-image prediction of crack morphology
+- **Physics-informed loss**
+  - **Growth constraint** — Crack length does not decrease between input and prediction
+  - **Direction constraint** — Penalizes deviation from expected propagation using skeletonization and tip detection
+- **Preprocessing pipeline** — Automated border removal and cropping for simulation frames
+- **Rich evaluation** — MAE, MSE, SSIM, PSNR, Dice, IoU, and LPIPS
 
-1. Clone the repository:
-   ```bash
-   git clone <your-repo-url>
-   cd crack-propagation-model
-   ```
+## Tech Stack
 
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+| Component | Technology |
+|-----------|------------|
+| Language | Python 3.x |
+| Deep learning | PyTorch, torchvision |
+| Vision / metrics | OpenCV, scikit-image, LPIPS |
+| Environment | Jupyter Notebook |
 
-## Usage
+## Project Structure
 
-The project is contained within a Jupyter Notebook:
-- `Codes.ipynb`: Contains the preprocessing pipeline, model architecture, training loop, and evaluation metrics.
+```
+Crack-Propogation-Model/
+├── Codes.ipynb                  # Preprocessing, training, evaluation
+├── requirements.txt
+├── best_crack_vae_physics.pth   # Saved model weights
+├── Data/
+│   ├── input/                   # Initial crack configurations
+│   └── output/                  # Ground-truth final states
+├── Processed Data/              # Cropped training images
+└── README.md
+```
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.8+
+- CUDA-capable GPU recommended for training (CPU works for inference at smaller scale)
+
+### Installation
+
+```bash
+git clone https://github.com/priyqnk/Crack-Propogation-Model.git
+cd Crack-Propogation-Model
+
+pip install -r requirements.txt
+```
+
+### Usage
+
+Open and run `Codes.ipynb` in Jupyter Notebook or JupyterLab. The notebook covers:
+
+1. Image preprocessing and dataset loading
+2. VAE architecture and physics-informed loss
+3. Training loop and checkpointing (`best_crack_vae_physics.pth`)
+4. Quantitative evaluation on the test set
 
 ## Dataset
 
-The project uses simulation images:
-- `Data/input`: Initial configuration images.
-- `Data/output`: Final configuration (ground truth) images.
-- `Processed Data`: Cropped and preprocessed images used for training.
-
-## Model
-
-The trained model weights are saved in `best_crack_vae_physics.pth`.
+| Directory | Contents |
+|-----------|----------|
+| `Data/input` | Initial notch / crack configuration images |
+| `Data/output` | Simulated final crack states (labels) |
+| `Processed Data` | Normalized, cropped images used during training |
 
 ## Evaluation Metrics
 
-The model is evaluated using:
-- MAE (Mean Absolute Error)
-- MSE (Mean Squared Error)
-- SSIM (Structural Similarity Index)
-- PSNR (Peak Signal-to-Noise Ratio)
-- Dice Coefficient & IoU (Intersection over Union)
-- LPIPS (Learned Perceptual Image Patch Similarity)
+| Metric | Measures |
+|--------|----------|
+| MAE / MSE | Pixel-level error |
+| SSIM / PSNR | Structural and signal fidelity |
+| Dice / IoU | Overlap with ground truth |
+| LPIPS | Perceptual similarity |
